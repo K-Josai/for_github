@@ -1,11 +1,12 @@
 from particle import Particle
 from ensemble import Ensemble
+from field import Field
 import numpy as np
 
-def main():
-    NATOM = 2
+def ensemble_test():
+    ATOM_NUM = 2
 
-    paricles = [Particle() for i in range(NATOM)]
+    paricles = [Particle() for i in range(ATOM_NUM)]
 
     ensemble = Ensemble(paricles)
 
@@ -24,6 +25,28 @@ def main():
     print("=100\n", ensemble.positions)
     
     print("速度の配列\n", ensemble.velocities)
+
+def main():
+    ATOM_NUM = 1
+    CYCLE_NUM = 20
+
+    paricles = [Particle() for i in range(ATOM_NUM)]
+
+    ensemble = Ensemble(paricles)
+    ensemble.positions += 2
+
+    print("初期位置\n", ensemble.positions)
+    print("初速度\n", ensemble.velocities)
+
+    myfield = Field(ensemble, dt=0.001)
+    for i in range(CYCLE_NUM):
+        myfield.update()
+
+        print("t:", myfield.dt*(i+1))
+        print("x:", myfield.ensemble.positions)
+        print("v:", myfield.ensemble.velocities)
+        print()
+
 
 if __name__=="__main__":
     main()
