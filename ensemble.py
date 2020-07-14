@@ -32,9 +32,9 @@ class Ensemble:
         for i in range(self.N):
             self.paricles[i].velocity = velocities_dst[i]
 
-    def get_posi_diff_map(self):
+    def get_posi_vec_map(self):
         """
-        粒子間の位置差分のマップ(N,N,3)を計算して返す
+        粒子間位置のベクトルのマップ(N,N,3)を計算して返す
         ri - rj
         position difference
         """
@@ -45,10 +45,10 @@ class Ensemble:
 
         dr = p[uti[0]] - p[uti[1]]
 
-        diff_map = np.zeros((N, N, dim))
-        diff_map[uti] = dr # 上三角行列のみに値が格納されたマップ
-        diff_map_T = -diff_map.transpose((1, 0, 2)) # 下三角行列飲みに値が格納されたマップ（ここで符号は逆転）
-        return diff_map + diff_map_T
+        vec_map = np.zeros((N, N, dim))
+        vec_map[uti] = dr # 上三角行列のみに値が格納されたマップ
+        vec_map_T = -vec_map.transpose((1, 0, 2)) # 下三角行列飲みに値が格納されたマップ（ここで符号は逆転）
+        return vec_map + vec_map_T
 
     def get_distance_map(self):
         """
