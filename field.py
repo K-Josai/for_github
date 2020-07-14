@@ -41,3 +41,11 @@ class FreeFallField(Field):
         self.ensemble.velocities += a*t
         
         self.apply_pbc()
+
+class MDField(Field):
+    def update(self):
+        pass
+
+    def VelocityVerlet(self):
+        r = self.ensemble.positions
+        v = self.ensemble.velocities
