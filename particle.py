@@ -17,4 +17,4 @@ class Particle:
         self.position = position if (position is not None) else zeros
         self.velocity = velocity if (velocity is not None) else zeros
         
-        self.mass = mass if ( mass is not None) else 1
+        self.mass = mass if ( mass is not None) else 1.0
