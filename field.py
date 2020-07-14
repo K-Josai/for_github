@@ -58,13 +58,20 @@ class FreeFallField(Field):
 
 class LennardJonesField(Field):
     def update(self):
-        self.calc_force()
-        pass
+        self.VelocityVerlet()
 
     def LennardJones_Force(self, r, sigma, epsilon):
         return 4*epsilon * ( 12*(sigma**12)/(r**13) - 6*(sigma**6)/(r**7) )
 
     def calc_force(self):
+        """
+        粒子にかかる力の計算
+
+        １．粒子間距離(rij)とベクトル(ri-rj)を取得
+        ２．カットオフで必要な粒子のみ抽出
+        ３．抽出した粒子から，粒子の組み合わせごとのLennard-Jonesを計算
+        ４．抽出した粒子を統合して，各粒子にかかる力を求める
+        """
         r = self.ensemble.get_distance_map() # 粒子間距離(rij)
         vec = self.ensemble.get_posi_vec_map() #粒子間位置のベクトル(ri-rj)
         
@@ -90,5 +97,13 @@ class LennardJonesField(Field):
         return F
     
     def VelocityVerlet(self):
-        r = self.ensemble.positions
+        F = self.calc_force()
+
+        q = self.ensemble.positions
         v = self.ensemble.velocities
+        dt = self.dt
+        m = 1
+
+        self.ensemble.positions = q + v*dt + F/m*(dt**2)/2
+        F_dt = self.calc_force()
+        self.ensemble.velocities = v + dt/2 * (F + F_dt) / m
