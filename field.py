@@ -2,6 +2,16 @@ import numpy as np
 
 class Field:
     def __init__(self, ensemble, rho=0.8, dt=0.001):
+        """
+        ensemble : Ensemble object
+            粒子集団
+
+        rho : float
+            Number density
+
+        dt : float
+            Time discritization 時間刻み幅
+        """
         self.ensemble = ensemble
         self.N = self.ensemble.N
         
@@ -18,7 +28,7 @@ class Field:
         """
         Apply Periodic boundary conditions (PBCs)
         
-        NOTE: 1セルの大きさより大きく移動した場合は，正しく適用されない
+        NOTE: 1セルの大きさより大きく移動した場合は，正しく適用されないので注意
         """
         old_positions = self.ensemble.positions
         new_positions = old_positions
@@ -42,7 +52,7 @@ class FreeFallField(Field):
         
         self.apply_pbc()
 
-class MDField(Field):
+class MolecularDynamicsField(Field):
     def update(self):
         pass
 
