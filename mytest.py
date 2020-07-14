@@ -1,29 +1,36 @@
 from particle import Particle
 from ensemble import Ensemble
-from field import Field, FreeFallField
+from field import Field, FreeFallField, LennardJonesField
+from draw import drawMolecularAnimation2D
+from util import show_progress
 import numpy as np
 
 def main():
-    ATOM_NUM = 1 # Number of particles
+    ATOM_NUM = 500 # Number of partics
+    DENSITY = 0.8 # NUmber density
     CYCLE_NUM = 50 # Number of Cycle
-
-    paricles = [Particle() for i in range(ATOM_NUM)]
+    DT = 0.0000001 # Time discritization
+    R_CUT = 10 # Potencital Cutoff
+    
+    init_positions = np.random.rand(ATOM_NUM, 3) * 5
+    init_positions[:,2] = 0
+    #init_positions = np.array([[0, 1, 0], [0, 0, 0], [0, 2, 0]])
+    paricles = [Particle(init_positions[i]) for i in range(ATOM_NUM)]
 
     ensemble = Ensemble(paricles)
-    ensemble.positions += 2
 
-    print("初期位置\n", ensemble.positions)
-    print("初速度\n", ensemble.velocities)
-
-    myfield = FreeFallField(ensemble, dt=0.05)
+    myfield = LennardJonesField(ensemble, rho=DENSITY, dt=DT)
+    position_recorder = np.zeros((ATOM_NUM, 3, CYCLE_NUM))
+    print("Cycle start")
     for i in range(CYCLE_NUM):
+        position_recorder[:,:,i] = myfield.ensemble.positions
         myfield.update()
+        show_progress(i, CYCLE_NUM)
 
-        print("t:", myfield.dt*(i+1))
-        print("x:", myfield.ensemble.positions)
-        print("v:", myfield.ensemble.velocities)
-        print()
-
+    print("Draw GIF")
+    x = position_recorder[:,0,:]
+    y = position_recorder[:,1,:]
+    drawMolecularAnimation2D(x, y, cel_length=np.sqrt(float(ATOM_NUM/DENSITY)))
 
 if __name__=="__main__":
     main()
