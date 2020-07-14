@@ -114,10 +114,10 @@ class LennardJonesField(Field):
         q = self.ensemble.positions
         v = self.ensemble.velocities
         dt = self.dt
-        m = 1
+        M = self.ensemble.mass[..., None]
 
-        self.ensemble.positions = q + v*dt + F/m*(dt**2)/2
+        self.ensemble.positions = q + v*dt + F/M*(dt**2)/2
 
         self.apply_pbc()
         F_dt = self.calc_force()
-        self.ensemble.velocities = v + dt/2 * (F + F_dt) / m
+        self.ensemble.velocities = v + dt/2 * (F + F_dt) / M
