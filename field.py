@@ -25,6 +25,8 @@ class Field:
         self.cel_length = np.sqrt(float(self.N/self.rho))
         self.cel_half_length = self.cel_length*0.5
 
+        self.apply_pbc() # 最初にPBCsを適用しておく
+
     def update(self):
         pass
 
@@ -34,11 +36,18 @@ class Field:
         
         NOTE: 1セルの大きさより大きく移動した場合は，正しく適用されないので注意
         """
-        old_positions = self.ensemble.positions
-        new_positions = old_positions
-        new_positions[old_positions<0.0] += self.cel_length
-        new_positions[old_positions>self.cel_length] -= self.cel_length
-        self.ensemble.positions = new_positions
+        positions = self.ensemble.positions
+        lower_positions = (positions<0.0)
+        upper_positions = (positions>=self.cel_length)
+        positions[lower_positions] += self.cel_length
+        positions[upper_positions] -= self.cel_length
+        self.ensemble.positions = positions
+        
+        lower_positions = (positions<0.0)
+        upper_positions = (positions>=self.cel_length)
+        if np.all(lower_positions==False) and np.all(upper_positions==False):
+            warning_msg = "Oops!: Some of the particles have shifted significantly.\n       Be careful. PBCs may not be maintained."
+            print(warning_msg)
 
 
 class FreeFallField(Field):
@@ -59,6 +68,7 @@ class FreeFallField(Field):
 class LennardJonesField(Field):
     def update(self):
         self.VelocityVerlet()
+        self.apply_pbc()
 
     def LennardJones_Force(self, r, sigma, epsilon):
         return 4*epsilon * ( 12*(sigma**12)/(r**13) - 6*(sigma**6)/(r**7) )
@@ -105,5 +115,7 @@ class LennardJonesField(Field):
         m = 1
 
         self.ensemble.positions = q + v*dt + F/m*(dt**2)/2
+
+        self.apply_pbc()
         F_dt = self.calc_force()
         self.ensemble.velocities = v + dt/2 * (F + F_dt) / m
