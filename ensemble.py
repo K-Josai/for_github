@@ -36,6 +36,7 @@ class Ensemble:
         """
         粒子間の位置差分のマップ(N,N,3)を計算して返す
         ri - rj
+        position difference
         """
         p = self.positions # (N,3)
         N, dim = p.shape[:2]
