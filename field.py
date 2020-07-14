@@ -20,7 +20,7 @@ class Field:
 
     def apply_pbc(self):
         old_positions = self.ensemble.positions
-        new_positions = old_positions.copy()
+        new_positions = old_positions
         new_positions[old_positions<0.0] += self.cel_length
         new_positions[old_positions>self.cel_length] -= self.cel_length
         self.ensemble.positions = new_positions
