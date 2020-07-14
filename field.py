@@ -1,4 +1,5 @@
 import numpy as np
+import warnings
 
 class Field:
     def __init__(self, ensemble, rho=0.8, r_cut=8, dt=0.001):
@@ -43,11 +44,12 @@ class Field:
         positions[upper_positions] -= self.cel_length
         self.ensemble.positions = positions
         
+        # チェック用
         lower_positions = (positions<0.0)
         upper_positions = (positions>=self.cel_length)
-        if np.all(lower_positions==False) and np.all(upper_positions==False):
-            warning_msg = "Oops!: Some of the particles have shifted significantly.\n       Be careful. PBCs may not be maintained."
-            print(warning_msg)
+        if np.any(lower_positions) or np.any(upper_positions):
+            warning_msg = "\nOops!: Some of the particles have shifted significantly.\n       Be careful. PBCs may not be maintained."
+            warnings.warn(warning_msg)
 
 
 class FreeFallField(Field):
