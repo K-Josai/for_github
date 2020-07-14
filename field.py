@@ -94,7 +94,7 @@ class LennardJonesField(Field):
         # 各粒子同士のLennard-Jonesポテンシャルでの力を計算
         epsilon = 1
         sigma = 0.2
-        F_preserved = (self.LennardJones_Force(r_preserved, sigma, epsilon) * vec_preserved.T / r_preserved).T
+        F_preserved = (self.LennardJones_Force(r_preserved, sigma, epsilon) * -vec_preserved.T / r_preserved).T
 
         # 各粒子同士にかかる力のマップ
         # カットオフした粒子の組み合わせは0になっている
