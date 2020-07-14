@@ -10,7 +10,7 @@ class Ensemble:
 
     @property
     def positions(self):
-        positions = np.zeros((self.N, 3), dtype=np.float32)
+        positions = np.zeros((self.N, 3), dtype=np.float64)
         for i, particle in enumerate(self.paricles):
             positions[i] = particle.position
         return positions
@@ -22,7 +22,7 @@ class Ensemble:
     
     @property
     def velocities(self):
-        velocities = np.zeros((self.N, 3), dtype=np.float32)
+        velocities = np.zeros((self.N, 3), dtype=np.float64)
         for i, particle in enumerate(self.paricles):
             velocities[i] = particle.velocity
         return velocities
@@ -31,7 +31,14 @@ class Ensemble:
     def velocities(self, velocities_dst):
         for i in range(self.N):
             self.paricles[i].velocity = velocities_dst[i]
-
+    
+    @property
+    def mass(self):
+        mass = np.zeros((self.N), dtype=np.float64)
+        for i, particle in enumerate(self.paricles):
+            mass[i] = particle.mass
+        return mass
+    
     def get_posi_vec_map(self):
         """
         粒子間位置のベクトルのマップ(N,N,3)を計算して返す
