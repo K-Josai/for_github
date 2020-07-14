@@ -1,13 +1,16 @@
 import numpy as np
 
 class Field:
-    def __init__(self, ensemble, rho=0.8, dt=0.001):
+    def __init__(self, ensemble, rho=0.8, r_cut=8, dt=0.001):
         """
         ensemble : Ensemble object
             粒子集団
 
         rho : float
             Number density
+
+        r_cut : float
+            Potential Cutoff
 
         dt : float
             Time discritization 時間刻み幅
@@ -16,6 +19,7 @@ class Field:
         self.N = self.ensemble.N
         
         self.rho = rho
+        self.r_cut = r_cut
         self.dt = dt
         
         self.cel_length = np.sqrt(float(self.N/self.rho))
@@ -52,10 +56,39 @@ class FreeFallField(Field):
         
         self.apply_pbc()
 
-class MolecularDynamicsField(Field):
+class LennardJonesField(Field):
     def update(self):
+        self.calc_force()
         pass
 
+    def LennardJones_Force(self, r, sigma, epsilon):
+        return 4*epsilon * ( 12*(sigma**12)/(r**13) - 6*(sigma**6)/(r**7) )
+
+    def calc_force(self):
+        r = self.ensemble.get_distance_map() # 粒子間距離(rij)
+        vec = self.ensemble.get_posi_vec_map() #粒子間位置のベクトル(ri-rj)
+        
+        index2preserve = np.logical_and(0<r, r<=self.r_cut) # カットオフして計算に用いる粒子の組み合わせ(True->残す，False->カットオフ)
+        # 0<r は同一粒子の組み合わせなのでカット
+
+        r_preserved = r[index2preserve] # カットオフ後の粒子間距離
+        vec_preserved = vec[index2preserve] # カットオフ後の粒子間ベクトル
+
+        # 各粒子同士のLennard-Jonesポテンシャルでの力を計算
+        epsilon = 1
+        sigma = 0.2
+        F_preserved = (self.LennardJones_Force(r_preserved, sigma, epsilon) * vec_preserved.T / r_preserved).T
+
+        # 各粒子同士にかかる力のマップ
+        # カットオフした粒子の組み合わせは0になっている
+        F_map = np.zeros_like(vec)
+        F_map[index2preserve] = F_preserved
+        
+        # F_mapを列ごとに足し合わせる
+        # これが，全ての粒子の影響を考慮した力になる
+        F = np.sum(F_map, axis=0)
+        return F
+    
     def VelocityVerlet(self):
         r = self.ensemble.positions
         v = self.ensemble.velocities
