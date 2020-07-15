@@ -5,6 +5,12 @@ class Ensemble:
         self.paricles = particles
 
     @property
+    def kinetic_energy(self):
+        v = self.velocities
+        k = 0.5 * np.average(v*v)
+        return k
+
+    @property
     def N(self):
         return len(self.paricles)
 
