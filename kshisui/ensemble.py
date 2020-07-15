@@ -11,6 +11,16 @@ class Ensemble:
         return k
 
     @property
+    def potential_energy(self):
+        r_all = np.triu(self.get_distance_map(), k=1)
+        r = r_all[r_all>0]
+        r2 = r**2
+        r6 = r2**3
+        r12 = r6**2
+        p = np.average( 4.0 * (1/r12 - 1/r6))
+        return p
+
+    @property
     def N(self):
         return len(self.paricles)
 
